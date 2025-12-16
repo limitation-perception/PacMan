@@ -8,24 +8,27 @@ pygame.init()
 WIDTH = 900
 HEIGHT = 950
 
-screen = pygame.display.set_mode((WIDTH, HEIGHT) ) # FULLSCREEN???
+screen = pygame.display.set_mode((WIDTH, HEIGHT), FULLSCREEN ) # FULLSCREEN???
 fps = 60
 timer = pygame.time.Clock()
-# font = pygame.font.Font("", 32)      HAVE TO ADD LATER!!!!!!!!!
+# font = pygame.font.Font("", 32)      HAVE TO ADD LATER
 level1 = boards
 color_for_walls = 'blue'
 color_for_food = 'white'
 PI = math.pi
+
 pacman_images = []
 for i in range(1,5):
     pacman_images.append(pygame.transform.scale(pygame.image.load(f'packman_images/{i}.png'), (45, 45)))
 
-pacman_start_x = 450
-pacman_start_y = 663
+pacman_x = 450 # IT`S A TOP LEFT CORNER
+pacman_y = 663
 direction = 0
+direction_command = 0
 counter = 0
 flicker = False
 turns_allowed = [False, False, False, False]
+pacman_speed =  2
 
 def draw_board():
     num1 = ((HEIGHT - 50) // 32)
@@ -63,15 +66,15 @@ def draw_board():
 def draw_pacman():
     # 0 = RIGHT     1 = LEFT    2 = UP      3 = DOWN
     if direction == 0:
-        screen.blit(pacman_images[counter // 5], (pacman_start_x, pacman_start_y))
+        screen.blit(pacman_images[counter // 5], (pacman_x, pacman_y))
     elif direction == 1:
-        screen.blit(pygame.transform.flip(pacman_images[counter // 5],True, False), (pacman_start_x, pacman_start_y))
+        screen.blit(pygame.transform.flip(pacman_images[counter // 5],True, False), (pacman_x, pacman_y))
     elif direction == 2:
-        screen.blit(pygame.transform.rotate(pacman_images[counter // 5], 90), (pacman_start_x, pacman_start_y))
+        screen.blit(pygame.transform.rotate(pacman_images[counter // 5], 90), (pacman_x, pacman_y))
     elif direction == 3:
-        screen.blit(pygame.transform.rotate(pacman_images[counter // 5], -90), (pacman_start_x, pacman_start_y))
+        screen.blit(pygame.transform.rotate(pacman_images[counter // 5], -90), (pacman_x, pacman_y))
 
-def check_position(centerx, centery):
+def check_turns(centerx, centery):
     turns = [False, False, False, False]
     num1 = (HEIGHT - 50) // 32
     num2 = WIDTH // 30
@@ -125,6 +128,19 @@ def check_position(centerx, centery):
 
     return turns
 
+def move_pacman(pacm_x, pacm_y):
+    if direction == 0 and turns_allowed[0]:
+        pacm_x += pacman_speed
+    elif direction == 1 and turns_allowed[1]:
+        pacm_x -= pacman_speed
+    if direction == 2 and turns_allowed[2]:
+        pacm_y -= pacman_speed
+    elif direction == 3 and turns_allowed[3]:
+        pacm_y += pacman_speed
+    return pacm_x, pacm_y
+
+
+
 run = True
 while run:
     timer.tick(fps)
@@ -139,9 +155,11 @@ while run:
     screen.fill('black')
     draw_board()
     draw_pacman()
-    center_x = pacman_start_x + 23
-    center_y = pacman_start_y + 24
-    turns_allowed = check_position(center_x, center_y)
+    center_x = pacman_x + 23
+    center_y = pacman_y + 24
+    turns_allowed = check_turns(center_x, center_y)
+    pacman_x, pacman_y = move_pacman(pacman_x, pacman_y)
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -155,15 +173,32 @@ while run:
                 direction_command = 2
             if event.key == pygame.K_DOWN:
                 direction_command = 3
-        if event.type == pygame.KEYUP:
-            if event.key == pygame.K_RIGHT:
-                direction_command = 0
-            if event.key == pygame.K_LEFT:
-                direction_command = 1
-            if event.key == pygame.K_UP:
-                direction_command = 2
-            if event.key == pygame.K_DOWN:
-                direction_command = 3
+        # if event.type == pygame.KEYUP:
+        #     if event.key == pygame.K_RIGHT and direction_command == 0:
+        #         direction_command = direction
+        #     if event.key == pygame.K_LEFT and direction_command == 1:
+        #         direction_command = direction
+        #     if event.key == pygame.K_UP and direction_command == 2:
+        #         direction_command = direction
+        #     if event.key == pygame.K_DOWN and direction_command == 3:
+        #         direction_command = direction
+
+        #  BETTER  NOT  TO ERASE, IT MAY BE CORRECT
+
+    if direction_command == 0 and turns_allowed[0]:
+        direction = 0
+    if direction_command == 1 and turns_allowed[1]:
+        direction = 1
+    if direction_command == 2 and turns_allowed[2]:
+        direction = 2
+    if direction_command == 3 and turns_allowed[3]:
+        direction = 3
+    if pacman_x > 900:
+        pacman_x = -47
+    elif pacman_x < -50:
+        pacman_x = 897
+
+
 
 
     pygame.display.flip()
