@@ -197,9 +197,5 @@ while run:
         pacman_x = -47
     elif pacman_x < -50:
         pacman_x = 897
-
-
-
-
     pygame.display.flip()
 pygame.quit()
