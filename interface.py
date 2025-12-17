@@ -30,10 +30,26 @@ clyde_image = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/ora
 dead_image = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/dead.png'), (45, 45))
 spooked_image = pygame.transform.scale(pygame.image.load(f'assets/ghost_images/powerup.png'), (45, 45))
 
-
 pacman_x = 450 # IT`S A TOP LEFT CORNER
 pacman_y = 663
 direction = 0
+
+blinky_x = 56
+blinky_y = 58
+blinky_direction = 0
+
+pinky_x = 440
+pinky_y = 438
+pinky_direction = 2
+
+inky_x = 440
+inky_y = 438
+inky_direction = 2
+
+clyde_x = 440
+clyde_y = 438
+clyde_direction = 2
+
 direction_command = 0
 counter = 0
 flicker = False
