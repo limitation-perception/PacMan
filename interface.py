@@ -1,8 +1,5 @@
 import pygame
 from pygame import FULLSCREEN
-
-# from pygame import FULLSCREEN
-
 from boards_for_levels import boards
 import math
 pygame.init()
@@ -59,9 +56,50 @@ score = 0
 powerup = False
 power_counter = 0
 eaten_ghost = [False, False, False, False]
+targets = [(pacman_x, pacman_y), (pacman_x, pacman_y), (pacman_x, pacman_y), (pacman_x, pacman_y)]
+
+blinky_dead = False
+pinky_dead = False
+inky_dead = False
+clyde_dead = False
+
+blinky_box = False
+pinky_box = False
+inky_box = False
+clyde_box = False
+
+ghost_speed = 2
+
 startup_counter = 0
 lives = 3
 
+class Ghost:
+    def __init__(self, x_coord, y_coord, target, speed, img, direct, dead, box, id):
+        self.x_pos = x_coord
+        self.y_pos = y_coord
+        self.center_x = self.x_pos + 22
+        self.center_y = self.y_pos + 22
+        self.target = target
+        self.speed = speed
+        self.img = img
+        self.in_box = box
+        self.id = id
+        self.turns, self.in_box = self.check_collisions()
+        self.rect = self.draw()
+
+    def draw(self):
+        if (not powerup and not self.dead) or (eaten_ghost[self.id] and powerup and not self.dead):
+            screen.blit(self.img, (self.x_pos, self.y_pos))
+        elif powerup and not self.dead and not eaten_ghost[self.id]:
+            screen.blit(spooked_image, (self.x_pos, self.y_pos))
+        else:
+            screen.blit(dead_image, (self.x_pos, self.y_pos))
+        ghost_rect = pygame.rect.Rect((self.center_x - 18, self.center_y - 18), (36,36))
+        return ghost_rect
+
+    def check_collisions(self):
+        pass
+        return self.turns, self.in_box
 
 def draw_misc():
     score_text = font.render(f"Score: {score}", True, "white")
@@ -125,7 +163,8 @@ def draw_pacman():
     if direction == 0:
         screen.blit(pacman_images[counter // 5], (pacman_x, pacman_y))
     elif direction == 1:
-        screen.blit(pygame.transform.flip(pacman_images[counter // 5],True, False), (pacman_x, pacman_y))
+        screen.blit(pygame.transform.flip(pacman_images[counter // 5],True, False),
+                    (pacman_x, pacman_y))
     elif direction == 2:
         screen.blit(pygame.transform.rotate(pacman_images[counter // 5], 90), (pacman_x, pacman_y))
     elif direction == 3:
@@ -196,6 +235,17 @@ def move_pacman(pacm_x, pacm_y):
         pacm_y += pacman_speed
     return pacm_x, pacm_y
 
+# def draw_blinky():
+#     if blinky_direction == 0:
+#         screen.blit(blinky_image, (blinky_x, blinky_y))
+#     elif blinky_direction == 1:
+#         screen.blit(pygame.transform.flip(blinky_image, True, False), (blinky_x, blinky_y))
+#     elif blinky_direction == 2:
+#         screen.blit(pygame.transform.rotate(blinky_image, 90), (blinky_x, blinky_y))
+#     elif blinky_direction == 3:
+#         screen.blit(pygame.transform.rotate(blinky_image, -90), (blinky_x, blinky_y))
+
+
 
 
 run = True
@@ -223,6 +273,7 @@ while run:
     screen.fill('black')
     draw_board()
     draw_pacman()
+    # draw_blinky()
     draw_misc()
     center_x = pacman_x + 23
     center_y = pacman_y + 24
