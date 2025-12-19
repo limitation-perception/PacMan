@@ -125,15 +125,70 @@ class Ghost:
                 self.turns[2] = True
 
             if self.direction == 2 or self.direction == 3:
-                if 12 <= self.center_x <= 18:
-                    if level1[self.center_y // 32][(self.center_x + num3) // 30] < 3 \
-                        or level1[self.center_y // 32][(self.center_x + num3) // 30] == 9:
+                if 12 <= self.center_y % num1 <= 18:
+                    if level1[self.center_y // num1][(self.center_x + num2) // num2] < 3 \
+                            or (level1[self.center_y // num1][(self.center_x + num2) // num2] == 9 and (self.in_box
+                                                                                                        or self.dead)):
+                        self.turns[0] = True
+                    if level1[self.center_y // num1][(self.center_x - num2) // num2] < 3 \
+                            or (level1[self.center_y // num1][(self.center_x - num2) // num2] == 9
+                                and (self.in_box or self.dead)):
+                        self.turns[1] = True
 
+                if 12 <= self.center_x % num2 <= 18:
+                    if level1[(self.center_y - num3) // num1][self.center_x // num2] < 3 \
+                            or (level1[(self.center_y - num3) // num1][self.center_x // num2] == 9
+                                and (self.in_box or self.dead)):
+                        self.turns[2] = True
+                    if level1[(self.center_y + num3) // num1][self.center_x // num2] < 3 \
+                            or (level1[(self.center_y + num3) // num1][self.center_x // num2] == 9
+                                and (self.in_box or self.dead)):
+                        self.turns[3] = True
 
+            if self.direction == 1 or self.direction == 0:
 
-
+                if 12 <= self.center_y % num1 <= 18:
+                    if level1[self.center_y // num1][(self.center_x + num3) // num2] < 3 \
+                            or (level1[self.center_y // num1][(self.center_x + num3) // num2] == 9 and (self.in_box
+                                                                                                        or self.dead)):
+                        self.turns[0] = True
+                    if level1[self.center_y // num1][(self.center_x - num3) // num2] < 3 \
+                            or (level1[self.center_y // num1][(self.center_x - num3) // num2] == 9 and (self.in_box
+                                                                                                        or self.dead)):
+                        self.turns[1] = True
+                if 12 <= self.center_x % num2 <= 18:
+                    if level1[(self.center_y - num1) // num1][self.center_x // num2] < 3 \
+                            or (level1[(self.center_y - num1) // num1][self.center_x // num2] == 9 and (self.in_box
+                                                                                                        or self.dead)):
+                        self.turns[2] = True
+                    if level1[(self.center_y + num1) // num1][self.center_x // num2] < 3 \
+                            or (level1[(self.center_y + num1) // num1][self.center_x // num2] == 9 and (self.in_box
+                                                                                                        or self.dead)):
+                        self.turns[3] = True
+        else:
+            self.turns[0] = True
+            self.turns[1] = True
+        if 350 < self.x_pos < 550 and 370 < self.y_pos < 490:
+            self.in_box = True
+        else:
+            self.in_box = False
 
         return self.turns, self.in_box
+
+    def move_clyde(self):
+
+        # turns when advantageous for pursuit
+        if self.direction == 0:
+            if self.target[0] > self.x_pos and self.turns[0]:
+                self.x_pos += self.speed
+            elif not self.turns[0]:
+                if self.target[1] > self.y_pos and self.turns[3]:
+                    self.direction = 3
+                    self.y_pos += speed
+
+
+
+
 
 
 def draw_misc():
@@ -274,17 +329,6 @@ def move_pacman(pacm_x, pacm_y):
     return pacm_x, pacm_y
 
 
-# def draw_blinky():
-#     if blinky_direction == 0:
-#         screen.blit(blinky_image, (blinky_x, blinky_y))
-#     elif blinky_direction == 1:
-#         screen.blit(pygame.transform.flip(blinky_image, True, False), (blinky_x, blinky_y))
-#     elif blinky_direction == 2:
-#         screen.blit(pygame.transform.rotate(blinky_image, 90), (blinky_x, blinky_y))
-#     elif blinky_direction == 3:
-#         screen.blit(pygame.transform.rotate(blinky_image, -90), (blinky_x, blinky_y))
-
-
 run = True
 while run:
     timer.tick(fps)
@@ -338,6 +382,8 @@ while run:
                 direction_command = 2
             if event.key == pygame.K_DOWN:
                 direction_command = 3
+            if event.key == pygame.K_1:
+                run = False                                                      ##      OPTIONAL, DONT FORGET
         # if event.type == pygame.KEYUP:
         #     if event.key == pygame.K_RIGHT and direction_command == 0:
         #         direction_command = direction
