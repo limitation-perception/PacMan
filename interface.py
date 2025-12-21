@@ -170,7 +170,7 @@ class Ghost:
         else:
             self.turns[0] = True
             self.turns[1] = True
-        if 350 < self.x_pos < 550 and 370 < self.y_pos < 490:
+        if 350 < self.x_pos < 550 and 370 < self.y_pos < 480:
             self.in_box = True
         else:
             self.in_box = False
@@ -319,6 +319,8 @@ class Ghost:
         elif self.x_pos > 900:
             self.x_pos = - 30
         return self.x_pos, self.y_pos, self.direction
+
+    def move_blinky(self):
 
 
 def draw_misc():
@@ -470,20 +472,40 @@ def get_targets(blink_x, blink_y, ink_x, ink_y, pink_x, pink_y, clyd_x, clyd_y):
         runaway_y = 0
     return_target = (380, 400)
     if powerup:
-        if not blinky_dead:
+        if not blinky_dead and not eaten_ghost[0]:
             blink_target = (runaway_x, runaway_y)
+        elif not blinky.dead and eaten_ghost[0]:
+            if 340 < blink_x < 560 and 340 < blink_y < 500:
+             blink_target = (400, 100)
+            else:
+                blink_target = (pacman_x, pacman_y)
         else:
             blink_target = return_target
-        if not pinky_dead:
+        if not pinky_dead and not eaten_ghost[1]:
             pink_target = (pacman_x, runaway_y)
+        elif not pinky.dead and eaten_ghost[1]:
+            if 340 < pink_x < 560 and 340 < pink_y < 500:
+             pink_target = (400, 100)
+            else:
+                pink_target = (pacman_x, pacman_y)
         else:
             pink_target = return_target
-        if not inky_dead:
+        if not inky_dead and not eaten_ghost[2]:
             ink_target = (runaway_x, pacman_y)
+        elif not inky.dead and eaten_ghost[2]:
+            if 340 < ink_x < 560 and 340 < ink_y < 500:
+             ink_target = (400, 100)
+            else:
+                ink_target = (pacman_x, pacman_y)
         else:
             ink_target = return_target
-        if not clyde_dead:
+        if not clyde_dead and not eaten_ghost[3]:
             clyd_target = (450, 450)
+        elif not clyde.dead and eaten_ghost[3]:
+            if 340 < clyd_x < 560 and 340 < clyd_y < 500:
+             clyd_target = (400, 100)
+            else:
+                clyd_target = (pacman_x, pacman_y)
         else:
             clyd_target = return_target
     else:
@@ -546,16 +568,17 @@ while run:
     center_x = pacman_x + 23
     center_y = pacman_y + 24
     if powerup:
-        ghost_speeds = [1,1,1,1]
-        if blinky_dead:
-            ghost_speeds[0] = 4
-        if pinky_dead:
-            ghost_speeds[1] = 4
-        if inky_dead:
-            ghost_speeds[2] = 4
-        if clyde_dead:
-            ghost_speeds[3] = 4      # HERE, DONT FORGET
-
+        ghost_speeds = [1, 1, 1, 1]
+    else:
+        ghost_speeds = [2, 2, 2, 2]
+    if blinky_dead:
+        ghost_speeds[0] = 4
+    if pinky_dead:
+        ghost_speeds[1] = 4
+    if inky_dead:
+        ghost_speeds[2] = 4
+    if clyde_dead:
+        ghost_speeds[3] = 4
 
     pacman_circle = pygame.draw.circle(screen, 'black', (center_x, center_y), 21, 2)
     draw_pacman()
@@ -573,9 +596,18 @@ while run:
     turns_allowed = check_turns(center_x, center_y)
     if moving:
         pacman_x, pacman_y = move_pacman(pacman_x, pacman_y)
-        blinky_x, blinky_y, blinky_direction = blinky.move_clyde()
-        pinky_x, pinky_y, pinky_direction = pinky.move_clyde()
-        inky_x, inky_y, inky_direction = inky.move_clyde()
+        if not blinky_dead and not blinky.in_box:
+            blinky_x, blinky_y, blinky_direction = blinky.move_blinky()
+        else:
+            blinky_x, blinky_y, blinky_direction = blinky.move_clyde()
+        if not pinky_dead and not pinky.in_box:
+            pinky_x, pinky_y, pinky_direction = pinky.move_pinky()
+        else:
+            pinky_x, pinky_y, pinky_direction = pinky.move_clyde()
+        if not inky_dead and not inky.in_box:
+            inky_x, inky_y, inky_direction = inky.move_inky()
+        else:
+            inky_x, inky_y, inky_direction = inky.move_clyde()
         clyde_x, clyde_y, clyde_direction = clyde.move_clyde()
     score, powerup, power_counter, eaten_ghost = check_collisions(score, powerup, power_counter, eaten_ghost)
 
@@ -721,15 +753,19 @@ while run:
     if powerup and pacman_circle.colliderect(blinky.rect) and not blinky.dead and not eaten_ghost[0]:
         blinky_dead = True
         eaten_ghost[0] = True
+        score += (2 ** eaten_ghost.count(True)) * 100
     if powerup and pacman_circle.colliderect(pinky.rect) and not pinky.dead and not eaten_ghost[1]:
         pinky_dead = True
         eaten_ghost[1] = True
+        score += (2 ** eaten_ghost.count(True)) * 100
     if powerup and pacman_circle.colliderect(inky.rect) and not inky.dead and not eaten_ghost[2]:
         inky_dead = True
         eaten_ghost[2] = True
+        score += (2 ** eaten_ghost.count(True)) * 100
     if powerup and pacman_circle.colliderect(clyde.rect) and not clyde.dead and not eaten_ghost[3]:
         clyde_dead = True
         eaten_ghost[3] = True
+        score += (2 ** eaten_ghost.count(True)) * 100
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
